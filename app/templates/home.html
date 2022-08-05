@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toledo E-Commerce</title>
+</head>
+<body>
+    <div>
+        <h1>Welcome to Toledo E-Commerce</h1>
+        <ul>
+            <li>
+                <a href={{url_for("register")}}>Create User</a>
+            </li>
+            <li>
+                <a href={{url_for("registerShop")}}>Create Shop</a>
+            </li>
+            {% if username %}
+            <li><a href={{url_for("userProfile")}}>Profile Page</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</body>
+</html>
