@@ -1,2 +1,3 @@
 myenv
 app/__pycache__
+.env

@@ -4,19 +4,30 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page - {{username}}</title>
+    <title>Profile Page - {{ user.name }}</title>
 </head>
 <body>
     <div>
-        {% if username %}
+        {% if user.name %}
         <h1>
-            Welcome to your page: {{username}}
+            Welcome to your page: {{ user.name }} - Role Level: {{ user.role }}
         </h1>
         {% else %}
         <h1>
             Welcome to your page: Anon
         </h1>
         {% endif %}
+    </div>
+    <div>
+        <h3>Edit your infos {{ user.name }}</h3>
+        <form action="/profile/details/update" method="post">
+            <div>
+                <label id="name">Name</label>
+                <input type="text" id="name" name="name">
+
+                <input type="submit" id="update" name="update" value="Update">
+            </div>
+        </form>
     </div>
     <div>
         <div>
