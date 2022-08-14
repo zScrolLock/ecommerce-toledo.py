@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/home.css') }}" />
     <title>Toledo E-Commerce</title>
 </head>
 <body>
@@ -20,6 +21,24 @@
             <li><a href={{url_for("userProfile")}}>Profile Page</a></li>
             {% endif %}
         </ul>
+    </div>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td> {{ user.name }} </td>
+                        <td> {{ user.email }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
