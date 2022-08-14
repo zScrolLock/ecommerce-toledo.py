@@ -12,13 +12,16 @@
         <h1>Welcome to Toledo E-Commerce</h1>
         <ul>
             <li>
-                <a href={{url_for("register")}}>Create User</a>
+                <a href={{url_for("registerPage")}}>Create User</a>
             </li>
             <li>
-                <a href={{url_for("registerShop")}}>Create Shop</a>
+                <a href={{url_for("registerShopPage")}}>Create Shop</a>
+            </li>
+            <li>
+                <a href={{url_for("loginPage")}}>Login</a>
             </li>
             {% if username %}
-            <li><a href={{url_for("userProfile")}}>Profile Page</a></li>
+            <li><a href={{url_for("userProfilePage")}}>Profile Page</a></li>
             {% endif %}
         </ul>
     </div>
