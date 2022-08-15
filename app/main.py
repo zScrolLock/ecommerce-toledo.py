@@ -1,5 +1,7 @@
+from operator import or_
 from flask import Flask, make_response, abort, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from dotenv import load_dotenv
 from pathlib import Path
 import jwt
@@ -59,6 +61,9 @@ def notFoundPage(err):
 def notFoundPage(err):
     return render_template('unauthorized.html', error = err)
 
+def jokerAction(action, error):
+    return render_template('jokerMessage.html', action = action, title = error['title'], message = error['message'])
+
 @app.route("/")
 def index():
     return render_template('home.html', username=request.cookies.get('username'), users = Users.query.all(), token = request.cookies.get('token'))
@@ -69,14 +74,11 @@ def loginPage():
 
 @app.route("/user-login", methods=['POST'])
 def login():
-    result = Users.query.filter(Users.username == request.form.get('username'), Users.password == request.form.get('password')).one()
+    result = Users.query.filter(Users.username == request.form.get('username'), Users.password == request.form.get('password')).one_or_none()
 
     if(result == None):
-        return jsonify(
-            ok = False,
-            code = 404,
-            message = "User not Found"
-        )
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
     token = jwt.encode({'username': result.username, 'id': result.id, 'role': result.role}, app.config['SECRET_JWT_KEY'])
     
     cookie = make_response(render_template('profile.html', user = result))
@@ -91,11 +93,18 @@ def registerPage():
 
 @app.route("/register-user", methods=['POST'])
 def registerUser():
-    newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), request.form.get('password'), '', None)
-    db.session.add(newUser)
-    db.session.commit()
+    userValidate = Users.query.filter(or_(Users.email == request.form.get('email'), Users.username == request.form.get('username'))).one_or_none()
 
-    return redirect(url_for('index'))
+    if not userValidate:
+        newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), request.form.get('password'), '', None)
+        db.session.add(newUser)
+        db.session.commit()
+
+        return redirect(url_for('index'))
+    else:
+        return jokerAction('Already Exists', {'title': 'Already Exists', 'message': 'E-mail or Username is already being used'})
+
+    
 
 @app.route("/profile/details/")
 @app.route("/profile/details")
@@ -106,7 +115,7 @@ def userProfilePage():
     user = Users.query.get(jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id'])
 
     if not user:
-        return jsonify({'message': 'user not found'})
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
 
     return render_template('profile.html', user = user)
 
@@ -119,6 +128,10 @@ def updateUser():
     decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
 
     user = Users.query.get(decodedInfos['id'])
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
     user.name = request.form.get('name') or user.name
     
     db.session.add(user)
@@ -130,6 +143,20 @@ def updateUser():
 def deleteUser():
     if not checkUser(request.cookies.get('token')):
         return abort(401)
+
+    user = Users.query.get(jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id'])
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    db.session.delete(user)
+    db.session.commit()
+
+    cookie = make_response(redirect("/"))
+    cookie.delete_cookie('token')
+    cookie.delete_cookie('username')
+
+    return cookie
 
 @app.route("/logout-user", methods=['POST'])
 def logoutUser(): 

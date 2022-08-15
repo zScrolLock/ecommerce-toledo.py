@@ -30,6 +30,12 @@
         </form>
     </div>
     <div>
+        <h3>Delete your account {{ user.name }}</h3>
+        <form action="/profile/details/delete" method="post">
+            <input type="submit" id="delete" name="delete" value="Delete Account">
+        </form>
+    </div>
+    <div>
         <div>
             <ul>
                 <li>
