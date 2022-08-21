@@ -34,7 +34,7 @@ class Users(db.Model):
     username = db.Column('username', db.String(256), nullable = False)
     password = db.Column('password', db.String(256), nullable = False)
     role = db.Column('role', db.String(256), default = "User", nullable = False)
-    favs = db.relationship('Adverts', secondary = user_adverts, lazy = 'subquery', backref = db.backref('users', lazy = True))
+    favs = db.relationship('Adverts', secondary = user_adverts, lazy = 'subquery', backref = db.backref('users', lazy = True)) 
     shops_id = db.Column('shops_id', db.Integer, db.ForeignKey('shops.id'), nullable = True)
 
     # Constructor
@@ -52,8 +52,8 @@ class Users(db.Model):
 class Shops(db.Model): 
     id = db.Column('id', db.Integer, primary_key = True)
     name = db.Column('name', db.String(256), nullable = False)
-    owner = db.relationship('Owner', backref = 'shops', lazy = True)
-    report = db.relationship('Report', backref = 'reports', lazy = True)
+    owner = db.relationship('Users', backref = 'shops', lazy = True)
+    report = db.relationship('Reports', backref = 'reports', lazy = True)
     products = db.relationship('Adverts', secondary = shops_adverts, lazy = 'subquery', backref = db.backref('shops', lazy = True))
 
     # Constructor
