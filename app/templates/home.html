@@ -1,56 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='/styles/home.css') }}" />
-    <title>Toledo E-Commerce</title>
-</head>
-<body>
-    <div>
-        <h1>Welcome to Toledo E-Commerce</h1>
-        <ul>
-            {% if not token %}
-            <li>
-                <a href={{url_for("loginPage")}}>Login</a>
-            </li>
-            <li>
-                <a href={{url_for("registerPage")}}>Create User</a>
-            </li>
-            {% endif %}
-            {% if username %}
-            <li>
-                <a href={{url_for("registerShopPage")}}>Create Shop</a>
-            </li>
-            <li><a href={{url_for("userProfilePage")}}>Profile Page</a></li>
-            {% endif %}
-            {% if token %}
-            <div>
-                <form action="logout-user" method="post">
-                    <input type="submit" id="logout" name="logout" value="Logout">
-                </form>
-            </div>
-            {% endif %}
-        </ul>
-    </div>
-    <div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>E-mail</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='/styles/home.css') }}" />
+        <title>Toledo E-Commerce</title>
+    </head>
+    <body>
+        <div>
+            <h1>Welcome to Toledo E-Commerce</h1>
+            <ul>
+                {% if not token %}
+                <li>
+                    <a href={{url_for("loginPage")}}>Login</a>
+                </li>
+                <li>
+                    <a href={{url_for("registerPage")}}>Create User</a>
+                </li>
+                {% endif %}
+                {% if username %}
+                <li>
+                    <a href={{url_for("registerShopPage")}}>Create Shop</a>
+                </li>
+                <li><a href={{url_for("userProfilePage")}}>Profile Page</a></li>
+                {% endif %}
+                {% if token %}
+                <div>
+                    <form action="logout-user" method="post">
+                        <input type="submit" id="logout" name="logout" value="Logout">
+                    </form>
+                </div>
+                {% endif %}
+            </ul>
+        </div>
+        <div>
+            <table>
+                <thead>
                     <tr>
-                        <td> {{ user.name }} </td>
-                        <td> {{ user.email }}</td>
+                        <th>Name</th>
+                        <th>E-mail</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td> {{ user.name }} </td>
+                            <td> {{ user.email }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
 </html>

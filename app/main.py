@@ -1,11 +1,12 @@
 from operator import or_
-from flask import Flask, make_response, abort, render_template, request, redirect, url_for, jsonify
+from flask import Flask, make_response, abort, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from dotenv import load_dotenv
 from pathlib import Path
 import jwt
 import os
+import bcrypt
 
 app = Flask(__name__)
 env_path = Path('.')/'.env'
@@ -23,17 +24,15 @@ class Users(db.Model):
     email = db.Column('email', db.String(256))
     username = db.Column('username', db.String(256))
     password = db.Column('password', db.String(256))
-    salt = db.Column('salt', db.String(256))
     role = db.Column('role', db.String(256), default = "User")
     shops_id = db.Column('shops_id', db.Integer)
 
     # Constructor
-    def __init__(this, name, email, username, password, salt, shops_id):
+    def __init__(this, name, email, username, password, shops_id):
         this.name = name
         this.email = email
         this.username = username
         this.password = password
-        this.salt = salt
         this.shops_id = shops_id
 
     # ToString Method
@@ -74,15 +73,20 @@ def loginPage():
 
 @app.route("/user-login", methods=['POST'])
 def login():
-    result = Users.query.filter(Users.username == request.form.get('username'), Users.password == request.form.get('password')).one_or_none()
+    parseResult = Users.query.filter(Users.username == request.form.get('username')).one_or_none()
 
-    if(result == None):
+    if(parseResult == None):
         return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
 
-    token = jwt.encode({'username': result.username, 'id': result.id, 'role': result.role}, app.config['SECRET_JWT_KEY'])
+    if not bcrypt.checkpw(request.form.get('password'), parseResult.password): 
+        return jokerAction('Invalid Password', {'title': 'Invalid Password', 'message': 'User password is invalid'})
+
+    token = jwt.encode({'username': parseResult.username, 'id': parseResult.id, 'role': parseResult.role}, app.config['SECRET_JWT_KEY'])
     
-    cookie = make_response(render_template('profile.html', user = result))
-    cookie.set_cookie('username', result.name)
+    del parseResult.password
+
+    cookie = make_response(render_template('profile.html', user = parseResult))
+    cookie.set_cookie('username', parseResult.name)
     cookie.set_cookie('token', token)
     
     return cookie
@@ -96,7 +100,7 @@ def registerUser():
     userValidate = Users.query.filter(or_(Users.email == request.form.get('email'), Users.username == request.form.get('username'))).one_or_none()
 
     if not userValidate:
-        newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), request.form.get('password'), '', None)
+        newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), bcrypt.hashpw(request.form.get('password'), bcrypt.gensalt()), None)
         db.session.add(newUser)
         db.session.commit()
 

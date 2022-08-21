@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-</head>
-<body>
-    <div>
-        <h4>Cadastro de Usuário</h4>
-        <form action="register-user" method="post">
-            <div>
-                <label id="name">Name</label>
-                <input type="text" id="name" name="name">
-            </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register</title>
+    </head>
+    <body>
+        <div>
+            <h4>Cadastro de Usuário</h4>
+            <form action="register-user" method="post">
+                <div>
+                    <label id="name">Name</label>
+                    <input type="text" id="name" name="name">
+                </div>
 
-            <div>
-                <label id="email">E-mail</label>
-                <input type="email" id="email" name="email">
-            </div>
+                <div>
+                    <label id="email">E-mail</label>
+                    <input type="email" id="email" name="email">
+                </div>
 
-            <div>
-                <label id="username">Username</label>
-                <input type="text" id="username" name="username">
-            </div>
-            
-            <div>
-                <label id="password">Password</label>
-                <input type="password" id="password" name="password">
-            </div>
-            
-            <div>
-                <input type="submit" id="register" name="register" value="Register">
-            </div>
-        </form>
-    </div>
-    <div>
-        <ul>
-            <li>
-                <a href={{url_for("index")}}>Back to Home</a>
-            </li>
-        </ul>
-    </div>
-</body>
+                <div>
+                    <label id="username">Username</label>
+                    <input type="text" id="username" name="username">
+                </div>
+                
+                <div>
+                    <label id="password">Password</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                
+                <div>
+                    <input type="submit" id="register" name="register" value="Register">
+                </div>
+            </form>
+        </div>
+        <div>
+            <ul>
+                <li>
+                    <a href={{url_for("index")}}>Back to Home</a>
+                </li>
+            </ul>
+        </div>
+    </body>
 </html>
