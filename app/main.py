@@ -18,14 +18,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+user_adverts = db.Table('user_has_adverts', 
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('adverts_id', db.Integer, db.ForeignKey('adverts.id'), primary_key=True)
+)
+
+shops_adverts = db.Table('shops_has_adverts', 
+    db.Column('shop_id', db.Integer, db.ForeignKey('shops.id'), primary_key=True),
+    db.Column('adverts_id', db.Integer, db.ForeignKey('adverts.id'), primary_key=True)
+)
 class Users(db.Model): 
     id = db.Column('id', db.Integer, primary_key = True)
-    name = db.Column('name', db.String(256))
-    email = db.Column('email', db.String(256))
-    username = db.Column('username', db.String(256))
-    password = db.Column('password', db.String(256))
-    role = db.Column('role', db.String(256), default = "User")
-    shops_id = db.Column('shops_id', db.Integer)
+    name = db.Column('name', db.String(256), nullable = False)
+    email = db.Column('email', db.String(256), nullable = False)
+    username = db.Column('username', db.String(256), nullable = False)
+    password = db.Column('password', db.String(256), nullable = False)
+    role = db.Column('role', db.String(256), default = "User", nullable = False)
+    favs = db.relationship('Adverts', secondary = user_adverts, lazy = 'subquery', backref = db.backref('users', lazy = True))
+    shops_id = db.Column('shops_id', db.Integer, db.ForeignKey('shops.id'), nullable = True)
 
     # Constructor
     def __init__(this, name, email, username, password, shops_id):
@@ -33,6 +43,52 @@ class Users(db.Model):
         this.email = email
         this.username = username
         this.password = password
+        this.shops_id = shops_id
+
+    # ToString Method
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Shops(db.Model): 
+    id = db.Column('id', db.Integer, primary_key = True)
+    name = db.Column('name', db.String(256), nullable = False)
+    owner = db.relationship('Owner', backref = 'shops', lazy = True)
+    report = db.relationship('Report', backref = 'reports', lazy = True)
+    products = db.relationship('Adverts', secondary = shops_adverts, lazy = 'subquery', backref = db.backref('shops', lazy = True))
+
+    # Constructor
+    def __init__(this, name):
+        this.name = name
+
+    # ToString Method
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Adverts(db.Model):
+    id = db.Column('id', db.Integer, primary_key = True)
+    name = db.Column('name', db.String(256), nullable = False)
+    price = db.Column('price', db.Numeric(10, 2), nullable = False)
+    category = db.Column('category', db.String(256), nullable = False)
+
+    # Constructor
+    def __init__(this, name, price, category):
+        this.name = name
+        this.price = price
+        this.category = category
+
+    # ToString Method
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Reports(db.Model):
+    id = db.Column('id', db.Integer, primary_key = True)
+    type = db.Column('type', db.String(256))
+    shops_id = db.Column('shops_id', db.Integer, db.ForeignKey('shops.id'))
+
+    # Constructor
+    def __init__(this, name, type, shops_id):
+        this.name = name
+        this.type = type
         this.shops_id = shops_id
 
     # ToString Method
@@ -65,7 +121,7 @@ def jokerAction(action, error):
 
 @app.route("/")
 def index():
-    return render_template('home.html', username=request.cookies.get('username'), users = Users.query.all(), token = request.cookies.get('token'))
+    return render_template('home.html', username = request.cookies.get('username'), users = Users.query.all(), token = request.cookies.get('token'))
 
 @app.route("/login")
 def loginPage():
