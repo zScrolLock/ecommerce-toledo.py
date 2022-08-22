@@ -15,7 +15,7 @@ env_path = Path('.')/'.env'
 load_dotenv(dotenv_path=env_path)
 app.debug = True
 app.config['SECRET_JWT_KEY'] = os.getenv("SECRET_JWT_KEY")
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASS")}@localhost:3306/{os.getenv("DATABASE_DB")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASS")}@{os.getenv("DATABASE_HOST")}/{os.getenv("DATABASE_DB")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -338,3 +338,4 @@ def reportsSalesShopPage():
 
 if __name__ == 'main':
     db.create_all()
+    app.run()
