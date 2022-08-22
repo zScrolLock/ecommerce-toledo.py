@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../static/styles/bootstrap.css"
+        <link rel="stylesheet" href="../static/styles/bootstrap.css" />
         <title>Toledo E-Commerce</title>
     </head>
     <body>
@@ -39,14 +39,16 @@
                 <thead class="thread-default">
                     <tr>
                         <th>Name</th>
-                        <th>E-mail</th>
+                        <th>Price</th>
+                        <th>Category</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in users %}
+                    {% for product in products %}
                         <tr>
-                            <td> {{ user.name }} </td>
-                            <td> {{ user.email }}</td>
+                            <td> {{ product}} </td>
+                            <td> {{ product.price }} </td>
+                            <td> {{ product.category }} </td>
                         </tr>
                     {% endfor %}
                 </tbody>

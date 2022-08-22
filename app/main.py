@@ -1,7 +1,9 @@
+from base64 import decode
 from operator import or_
 from flask import Flask, make_response, abort, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
+from sqlalchemy import select
 from dotenv import load_dotenv
 from pathlib import Path
 import jwt
@@ -34,16 +36,14 @@ class Users(db.Model):
     username = db.Column('username', db.String(256), nullable = False)
     password = db.Column('password', db.String(256), nullable = False)
     role = db.Column('role', db.String(256), default = "User", nullable = False)
-    favs = db.relationship('Adverts', secondary = user_adverts, lazy = 'subquery', backref = db.backref('users', lazy = True)) 
-    shops_id = db.Column('shops_id', db.Integer, db.ForeignKey('shops.id'), nullable = True)
+    favs = db.relationship('Adverts', secondary = user_adverts, lazy = 'subquery', backref = db.backref('users', lazy = True))
 
     # Constructor
-    def __init__(this, name, email, username, password, shops_id):
+    def __init__(this, name, email, username, password):
         this.name = name
         this.email = email
         this.username = username
         this.password = password
-        this.shops_id = shops_id
 
     # ToString Method
     def as_dict(self):
@@ -52,13 +52,14 @@ class Users(db.Model):
 class Shops(db.Model): 
     id = db.Column('id', db.Integer, primary_key = True)
     name = db.Column('name', db.String(256), nullable = False)
-    owner = db.relationship('Users', backref = 'shops', lazy = True)
     report = db.relationship('Reports', backref = 'reports', lazy = True)
     products = db.relationship('Adverts', secondary = shops_adverts, lazy = 'subquery', backref = db.backref('shops', lazy = True))
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('users.id'), nullable = False)
 
     # Constructor
-    def __init__(this, name):
+    def __init__(this, name, user_id):
         this.name = name
+        this.user_id = user_id
 
     # ToString Method
     def as_dict(self):
@@ -120,8 +121,8 @@ def jokerAction(action, error):
     return render_template('jokerMessage.html', action = action, title = error['title'], message = error['message'])
 
 @app.route("/")
-def index():
-    return render_template('home.html', username = request.cookies.get('username'), users = Users.query.all(), token = request.cookies.get('token'))
+def index():        
+    return render_template('home.html', username = request.cookies.get('username'), token = request.cookies.get('token'))
 
 @app.route("/login")
 def loginPage():
@@ -164,7 +165,30 @@ def registerUser():
     else:
         return jokerAction('Already Exists', {'title': 'Already Exists', 'message': 'E-mail or Username is already being used'})
 
-    
+@app.route("/shop/register-shops", methods=['POST'])
+def registerShops():
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    shopValidate = Shops.query.filter(Shops.name == request.form.get('name')).one_or_none()
+    user = Users.query.get(jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id'])
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    if not shopValidate:
+        newShop = Shops(request.form.get('name'), user.id)
+        db.session.add(newShop)
+        db.session.commit()
+
+        user.shops_id = newShop.id
+        user.role = "Shop Owner"
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('index'))
+    else:
+        return jokerAction('Already Exists', {'title': 'Already Exists', 'message': 'Name is already being used'})
 
 @app.route("/profile/details/")
 @app.route("/profile/details")
@@ -235,7 +259,12 @@ def shopPage():
     if not checkUser(request.cookies.get('token')):
         return abort(401)
 
-    return render_template('shops.html')
+    shops = Shops.query.filter(Shops.user_id == jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id']).one_or_none()
+    
+    if not shops:
+        return abort(404)
+
+    return render_template('shopsPage.html', shop = shops)
 
 @app.route("/shop/register")
 def registerShopPage(): 
@@ -244,12 +273,61 @@ def registerShopPage():
 
     return render_template('registerShop.html')
 
-@app.route("/shop/edit")
+@app.route("/shop/edit", methods=['POST'])
 def updateShopPage():
     if not checkUser(request.cookies.get('token')):
         return abort(401)
 
-    return render_template('editShop.html')
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+
+    shops = Shops.query.filter(Shops.user_id == decodedInfos['id']).one_or_none()
+
+    if not shops:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'Shops not found in database'})
+
+    shops.name = request.form.get('name') or shops.name
+    
+    db.session.add(shops)
+    db.session.commit()
+
+    return redirect(url_for('shopPage'))
+
+@app.route("/shop/delete", methods=['POST'])
+def deleteShop():
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    shops = Shops.query.filter(Shops.user_id == decodedInfos['id']).one_or_none()
+
+    if not shops:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'Shops not found in database'})
+
+    user = Users.query.get(decodedInfos['id'])
+    user.role = "User"
+
+    db.session.delete(shops)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+
+@app.route("/shop/create-product", methods=['POST'])
+def createProduct():
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    shops = Shops.query.filter(Shops.user_id == decodedInfos['id']).one_or_none()
+
+    product = Adverts(request.form.get('name'), request.form.get('price'), request.form.get('category'))
+
+    shops.products.append(product)
+    db.session.add(shops)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
 
 @app.route("/shop/report")
 def reportsSalesShopPage():

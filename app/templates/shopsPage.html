@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shops Page - {{ shop.name }}</title>
+</head>
+<body>
+    <div>
+        <h3>Edit your infos {{ shop.name }}</h3>
+        <form action="/shop/edit" method="post">
+            <div>
+                <label id="name">Name</label>
+                <input type="text" id="name" name="name">
+
+                <input type="submit" id="update" name="update" value="Update Shop">
+            </div>
+        </form>
+    </div>
+    <div>
+        <h3>Delete Shop</h3>
+        <form action="/shop/delete" method="post">
+            <input type="submit" id="delete" name="delete" value="Delete Shop">
+        </form>
+    </div>
+    <div>
+        <h3>Create products</h3>
+        <form action="/shop/create-product" method="post">
+            <label id="name">Name</label>
+            <input type="text" id="name" name="name">
+
+            <label id="price">Price</label>
+            <input type="number" id="price" name="price">
+
+            <label id="category">Category</label>
+            <input type="text" id="category" name="category">
+
+            <input type="submit" id="create-product" name="create-product" value="Create Product to Shop">
+        </form>
+    </div>
+    <div>
+        <div>
+            <ul>
+                <li>
+                    <a href={{url_for("index")}}>Back to Home</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
