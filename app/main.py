@@ -70,12 +70,14 @@ class Adverts(db.Model):
     name = db.Column('name', db.String(256), nullable = False)
     price = db.Column('price', db.Numeric(10, 2), nullable = False)
     category = db.Column('category', db.String(256), nullable = False)
+    owner = db.Column('owner', db.Integer, nullable = False)
 
     # Constructor
-    def __init__(this, name, price, category):
+    def __init__(this, name, price, category, owner):
         this.name = name
         this.price = price
         this.category = category
+        this.owner = owner
 
     # ToString Method
     def as_dict(self):
@@ -121,8 +123,18 @@ def jokerAction(action, error):
     return render_template('jokerMessage.html', action = action, title = error['title'], message = error['message'])
 
 @app.route("/")
-def index():        
-    return render_template('home.html', username = request.cookies.get('username'), token = request.cookies.get('token'), products=Adverts.query.all())
+def index():     
+    adverts_arr = Adverts.query.join(Shops, Shops.id==Adverts.owner).all()
+
+    for x in adverts_arr:
+        x.shop_name = db.session.query(Shops.name).filter(Shops.id == x.owner).one_or_none()['name']
+
+    if request.cookies.get('token'):
+        user = Users.query.get(jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id'])
+        return render_template('home.html', role = user.role, username = user.username, token = request.cookies.get('token'), products=adverts_arr)
+    else:
+        return render_template('home.html', role = None, username = None, token = None, products=adverts_arr)
+    
 
 @app.route("/login")
 def loginPage():
@@ -143,7 +155,6 @@ def login():
     del parseResult.password
 
     cookie = make_response(render_template('profile.html', user = parseResult))
-    cookie.set_cookie('username', parseResult.name)
     cookie.set_cookie('token', token)
     
     return cookie
@@ -249,7 +260,6 @@ def logoutUser():
 
     cookie = make_response(redirect("/"))
     cookie.delete_cookie('token')
-    cookie.delete_cookie('username')
 
     return cookie
 
@@ -307,7 +317,13 @@ def deleteShop():
     user.role = "User"
 
     db.session.delete(shops)
+    Adverts.query.filter(Adverts.owner == shops.id).delete()
     db.session.commit()
+
+    adverts_arr = Adverts.query.join(Shops, Shops.id==Adverts.owner).all()
+
+    for x in adverts_arr:
+        x.shop_name = db.session.query(Shops.name).filter(Shops.id == x.owner).one_or_none()['name']
 
     return redirect(url_for('index'))
 
@@ -320,7 +336,7 @@ def createProduct():
     decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
     shops = Shops.query.filter(Shops.user_id == decodedInfos['id']).one_or_none()
 
-    product = Adverts(request.form.get('name'), request.form.get('price'), request.form.get('category'))
+    product = Adverts(request.form.get('name'), request.form.get('price'), request.form.get('category'), shops.id)
 
     shops.products.append(product)
     db.session.add(shops)
@@ -335,6 +351,10 @@ def reportsSalesShopPage():
         return abort(401)
 
     return render_template('reportSales.html')
+
+@app.route("/product/detail/<id>")
+def productDetailsPage(id):
+    return render_template('productPage.html', product = Adverts.query.filter(Adverts.id == id).one_or_none())
 
 if __name__ == 'main':
     db.create_all()

@@ -8,6 +8,24 @@
     <title>Products</title>
 </head>
 <body>
-    
+    {% if product %}
+    <div>
+        <div>{{ product.name }}</div>
+        <div>{{ product.price }}</div>
+        <div>{{ product.category }}</div>
+    </div>
+    <div>
+        <input type="button" value="Comprar"></input>
+    </div>
+    {% endif %}
+    <div>
+        <div>
+            <ul>
+                <li>
+                    <a href={{url_for("index")}}>Back to Home</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

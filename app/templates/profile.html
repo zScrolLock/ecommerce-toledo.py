@@ -29,9 +29,11 @@
                 </div>
             </form>
         </div>
+        {% if user.role == "Shop Owner" %}
         <div>
             <h3><a href="/shop">Acess your shop</a></h3>
         </div>
+        {% endif %}
         <div>
             <h3>Delete your account {{ user.name }}</h3>
             <form action="/profile/details/delete" method="post">

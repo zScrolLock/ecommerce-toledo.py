@@ -20,9 +20,11 @@
                 </li>
                 {% endif %}
                 {% if username %}
+                {% if role != 'Shop Owner' %}
                 <li>
                     <a href={{url_for("registerShopPage")}}>Create Shop</a>
                 </li>
+                {% endif %}
                 <li><a href={{url_for("userProfilePage")}}>Profile Page</a></li>
                 {% endif %}
                 {% if token %}
@@ -42,14 +44,40 @@
                         <th>Name</th>
                         <th>Price</th>
                         <th>Category</th>
+                        <th>Owner</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for product in products %}
                         <tr>
-                            <td> {{ product.name }} </td>
-                            <td> {{ product.price }} </td>
-                            <td> {{ product.category }} </td>
+                            <td>
+                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                    <div style="height:100%;width:100%">
+                                        {{ product.name }}
+                                    </div> 
+                                </a>
+                            </td>
+                            <td> 
+                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                    <div style="height:100%;width:100%">
+                                        {{ product.price }}
+                                    </div> 
+                                </a>    
+                            </td>
+                            <td> 
+                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                    <div style="height:100%;width:100%">
+                                        {{ product.category }}
+                                    </div> 
+                                </a>
+                            </td>
+                            <td>
+                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                    <div style="height:100%;width:100%">
+                                        {{ product.shop_name }}
+                                    </div> 
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
