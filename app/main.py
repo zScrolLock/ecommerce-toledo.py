@@ -157,7 +157,7 @@ def registerUser():
     userValidate = Users.query.filter(or_(Users.email == request.form.get('email'), Users.username == request.form.get('username'))).one_or_none()
 
     if not userValidate:
-        newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), bcrypt.hashpw(request.form.get('password'), bcrypt.gensalt()), None)
+        newUser = Users(request.form.get('name'), request.form.get('email'), request.form.get('username'), bcrypt.hashpw(request.form.get('password'), bcrypt.gensalt()))
         db.session.add(newUser)
         db.session.commit()
 
