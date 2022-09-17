@@ -122,7 +122,7 @@ def jokerAction(action, error):
 
 @app.route("/")
 def index():        
-    return render_template('home.html', username = request.cookies.get('username'), token = request.cookies.get('token'))
+    return render_template('home.html', username = request.cookies.get('username'), token = request.cookies.get('token'), products=Adverts.query.all())
 
 @app.route("/login")
 def loginPage():

@@ -34,6 +34,7 @@
                 {% endif %}
             </ul>
         </div>
+        {% if token %}
         <div class="container">
             <table class="table table-striped table-responsive table-bordered">
                 <thead class="thread-default">
@@ -46,7 +47,7 @@
                 <tbody>
                     {% for product in products %}
                         <tr>
-                            <td> {{ product}} </td>
+                            <td> {{ product.name }} </td>
                             <td> {{ product.price }} </td>
                             <td> {{ product.category }} </td>
                         </tr>
@@ -54,5 +55,6 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </body>
 </html>
