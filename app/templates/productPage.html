@@ -15,7 +15,14 @@
         <div>{{ product.category }}</div>
     </div>
     <div>
-        <input type="button" value="Comprar"></input>
+        <form action="/product/buy/{{product.id}}" method="post">
+            <input type="submit" id="buy" name="buy" value="Buy Shop">
+        </form>
+    </div>
+    <div>
+        <form action="/product/favorite/{{product.id}}" method="post">
+            <input type="submit" id="favorite" name="favorite" value="Favorite Product">
+        </form>
     </div>
     {% endif %}
     <div>

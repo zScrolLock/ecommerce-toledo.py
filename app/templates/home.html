@@ -43,6 +43,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Price</th>
+                        <th>Quantity</th>
                         <th>Category</th>
                         <th>Owner</th>
                     </tr>
@@ -51,28 +52,35 @@
                     {% for product in products %}
                         <tr>
                             <td>
-                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                <a class="link-product" href={{url_for('productDetailsPage', id=product.id )}}>
                                     <div style="height:100%;width:100%">
                                         {{ product.name }}
                                     </div> 
                                 </a>
                             </td>
                             <td> 
-                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                <a class="link-product" href={{url_for('productDetailsPage', id=product.id )}}>
                                     <div style="height:100%;width:100%">
                                         {{ product.price }}
                                     </div> 
                                 </a>    
                             </td>
                             <td> 
-                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                <a class="link-product" href={{url_for('productDetailsPage', id=product.id )}}>
+                                    <div style="height:100%;width:100%">
+                                        {{ product.quantity }}
+                                    </div> 
+                                </a>    
+                            </td>
+                            <td> 
+                                <a class="link-product" href={{url_for('productDetailsPage', id=product.id )}}>
                                     <div style="height:100%;width:100%">
                                         {{ product.category }}
                                     </div> 
                                 </a>
                             </td>
                             <td>
-                                <a class="link-product" target="_blank" href={{url_for('productDetailsPage', id=product.id )}}>
+                                <a class="link-product" href={{url_for('productDetailsPage', id=product.id )}}>
                                     <div style="height:100%;width:100%">
                                         {{ product.shop_name }}
                                     </div> 

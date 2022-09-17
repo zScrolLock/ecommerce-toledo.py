@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles/bootstrap.css" />
     <title>Shops Page - {{ shop.name }}</title>
 </head>
 <body>
@@ -20,9 +21,13 @@
     </div>
     <div>
         <h3>Delete Shop</h3>
-        <form action="/shop/delete" method="post">
-            <input type="submit" id="delete" name="delete" value="Delete Shop">
-        </form>
+        {% if shop.products|length == 0 %}
+            <form action="/shop/delete" method="post">
+                <input type="submit" id="delete" name="delete" value="Delete Shop">
+            </form>
+        {% else %}
+            <p>Cannot delete Shop - Has products</p>
+        {% endif %}
     </div>
     <div>
         <h3>Create products</h3>
@@ -33,11 +38,63 @@
             <label id="price">Price</label>
             <input type="number" id="price" name="price">
 
+            <label id="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity">
+
             <label id="category">Category</label>
             <input type="text" id="category" name="category">
 
             <input type="submit" id="create-product" name="create-product" value="Create Product to Shop">
         </form>
+    </div>
+    <div>
+        <h3>Your shop products</h3>
+        <div class="container">
+            <table class="table table-striped table-responsive table-bordered">
+                <thead class="thread-default">
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in shop.products %}
+                    <tr>
+                        <td>
+                            <div style="height:100%;width:100%">
+                                {{ product.name }}
+                            </div> 
+                        </td>
+                        <td> 
+                            <div style="height:100%;width:100%">
+                                {{ product.price }}
+                            </div>  
+                        </td>
+                        <td> 
+                            <div style="height:100%;width:100%">
+                                {{ product.quantity }}
+                            </div>    
+                        </td>
+                        <td> 
+                            <div style="height:100%;width:100%">
+                                {{ product.category }}
+                            </div> 
+                        </td>
+                        <td>
+                            <div>
+                                <form action="/product/delete/{{product.id}}" method="post">
+                                    <input type="submit" id="delete" name="delete" value="Delete">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     <div>
         <div>

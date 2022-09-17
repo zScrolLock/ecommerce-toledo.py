@@ -1,4 +1,5 @@
 from base64 import decode
+from crypt import methods
 from operator import or_
 from flask import Flask, make_response, abort, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -70,12 +71,14 @@ class Adverts(db.Model):
     name = db.Column('name', db.String(256), nullable = False)
     price = db.Column('price', db.Numeric(10, 2), nullable = False)
     category = db.Column('category', db.String(256), nullable = False)
+    quantity = db.Column('quantity', db.Integer, nullable = False)
     owner = db.Column('owner', db.Integer, nullable = False)
 
     # Constructor
-    def __init__(this, name, price, category, owner):
+    def __init__(this, name, price, quantity, category, owner):
         this.name = name
         this.price = price
+        this.quantity = quantity
         this.category = category
         this.owner = owner
 
@@ -93,6 +96,22 @@ class Reports(db.Model):
         this.name = name
         this.type = type
         this.shops_id = shops_id
+
+    # ToString Method
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Sales(db.Model):
+    id = db.Column('id', db.Integer, primary_key = True)
+    product_id = db.Column('product_id', db.Integer, nullable = False)
+    owner_id = db.Column('shop_id', db.Integer, nullable = False)
+    buyer_id = db.Column('buyer_id', db.Integer, nullable = False)
+
+    # Constructor
+    def __init__(this, product_id, owner_id, buyer_id):
+        this.product_id = product_id
+        this.owner_id = owner_id
+        this.buyer_id = buyer_id
 
     # ToString Method
     def as_dict(self):
@@ -336,7 +355,7 @@ def createProduct():
     decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
     shops = Shops.query.filter(Shops.user_id == decodedInfos['id']).one_or_none()
 
-    product = Adverts(request.form.get('name'), request.form.get('price'), request.form.get('category'), shops.id)
+    product = Adverts(request.form.get('name'), request.form.get('price'), request.form.get('quantity'), request.form.get('category'), shops.id)
 
     shops.products.append(product)
     db.session.add(shops)
@@ -355,6 +374,80 @@ def reportsSalesShopPage():
 @app.route("/product/detail/<id>")
 def productDetailsPage(id):
     return render_template('productPage.html', product = Adverts.query.filter(Adverts.id == id).one_or_none())
+
+@app.route("/product/favorite/<id>", methods=['POST'])
+def favoriteProduct(id):
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    product = Adverts.query.filter(Adverts.id == id).one_or_none()
+
+    if not product:
+        return jokerAction('Not Found', {'title': 'Product not found', 'message': 'product not found in database'})
+
+    for x in user.favs:
+        if x.id == product.id:
+            return jokerAction('Already Favorite', {'title': 'Product already favorite', 'message': 'product already favorite'})
+
+    user.favs.append(product)
+    db.session.add(user)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route("/product/buy/<id>", methods=['POST'])
+def buyProduct(id):
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    product = Adverts.query.filter(Adverts.id == id).one_or_none()
+
+    if not product:
+        return jokerAction('Not Found', {'title': 'Product not found', 'message': 'product not found in database'})
+
+    if product.quantity == 0:
+        return jokerAction('Product has no Quantity', {'title': 'Product out of stock', 'message': 'product out of stock'})
+
+    sales = Sales(product.id, product.owner, user.id)
+    product.quantity -= 1;
+    db.session.add(sales)
+    db.session.add(product)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route("/product/delete/<id>", methods=['POST'])
+def deleteProduct(id):
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    product = Adverts.query.filter(Adverts.id == id).one_or_none()
+
+    if not product:
+        return jokerAction('Not Found', {'title': 'Product not found', 'message': 'product not found in database'})
+
+    db.session.delete(product)
+    db.session.commit()
+
+    return redirect(url_for("shopPage"))    
 
 if __name__ == 'main':
     db.create_all()
