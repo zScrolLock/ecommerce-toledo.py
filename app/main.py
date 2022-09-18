@@ -496,6 +496,6 @@ def reportsSalesPage(type):
     else:
         return jokerAction('Not Found', {'title': 'Report not found', 'message': 'report type not found in database'})
 
-if __name__ == 'main':
+if __name__ == '__main__':
     db.create_all()
     app.run()
