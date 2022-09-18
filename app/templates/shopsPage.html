@@ -5,110 +5,248 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles/bootstrap.css" />
+    <link rel="stylesheet" href="../static/styles/extras.css" />
     <title>Shops Page - {{ shop.name }}</title>
 </head>
 <body>
-    <div>
-        <h3>Edit your infos {{ shop.name }}</h3>
-        <form action="/shop/edit" method="post">
-            <div>
-                <label id="name">Name</label>
-                <input type="text" id="name" name="name">
-
-                <input type="submit" id="update" name="update" value="Update Shop">
-            </div>
-        </form>
-    </div>
-    <div>
-        <h3>Delete Shop</h3>
-        {% if shop.products|length == 0 %}
-            <form action="/shop/delete" method="post">
-                <input type="submit" id="delete" name="delete" value="Delete Shop">
+    <nav class="site-header sticky-top py-1">
+        <div class="container d-flex flex-column flex-md-row justify-content-between">
+            <a class="py-2 d-none d-md-inline-block" style="text-decoration: none;" href={{url_for("index")}}>Home
+                Page</a>
+            <form action="/shop/report" method="POST">
+                <input class="py-2 d-none d-md-inline-block" type="submit" value="Report">
             </form>
-        {% else %}
-            <p>Cannot delete Shop - Has products</p>
-        {% endif %}
-    </div>
-    <div>
-        <h3>Create products</h3>
-        <form action="/shop/create-product" method="post">
-            <label id="name">Name</label>
-            <input type="text" id="name" name="name">
+            <form action={{url_for('logoutUser')}} method="post">
+                <input class="py-2 d-none d-md-inline-block" type="submit" id="logout" name="logout" value="Logout">
+            </form>
+        </div>
+    </nav>
 
-            <label id="price">Price</label>
-            <input type="number" id="price" name="price">
+    <section style="background-color: #eee;">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-4 h-100">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6.webp"
+                                alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                            {% if shop.name %}
+                            <h5 class="my-3">{{ shop.name }}</h5>
+                            <p class="text-muted mb-1"><b>Address:</b> {{ shop.address }}</p>
+                            <p class="text-muted mb-4">@{{ shop.shopcode }}</p>
+                            <p class="text-muted mb-4">{{ shop.cellphone }}</p>
+                            {% else %}
+                            <h5 class="my-3">Anon</h5>
+                            <p class="text-muted mb-1">Pres. Prudente</p>
+                            <p class="text-muted mb-4">@anon</p>
+                            <p class="text-muted mb-4">(XX) 12345-6789</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
-            <label id="quantity">Quantity</label>
-            <input type="number" id="quantity" name="quantity">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Edit name</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <form action="/shop/edit" method="post">
+                                        <div class="input-group input-group-sm col-sm">
+                                            <input type="text" class="form-control" id="name" name="name" value={{shop.name}}>
+                            
+                                            <input class="btn btn-sm" type="submit" id="update" name="update" value="Update">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Address</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">{{ shop.address }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Shop Code</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">@{{ shop.shopcode }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Cell Phone</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">{{ shop.cellphone }}</p>
+                                </div>
+                            </div>
+                            {% if shop.products|length == 0 %}
+                            <hr>
+                            <div class="row">
+                                <div>
+                                    <form action="/shop/delete" method="post">
+                                        <input class="btn btn-lg btn-secondary btn-block w-100" type="submit" id="delete" name="delete" value="Delete Shop">
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <p class="card-title"><b>Products</b></p>
+                            <div class="row">
+                                <table class="table table-responsive">
+                                    <thead class="thread-default">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Category</th>
+                                            <th>Delete</th>
+                                            <th>Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in shop.products %}
+                                        <tr>
+                                            <td>
+                                                <div style="height:100%;width:100%">
+                                                    {{ product.name }}
+                                                </div> 
+                                            </td>
+                                            <td> 
+                                                <div style="height:100%;width:100%">
+                                                    {{ product.price }}
+                                                </div>  
+                                            </td>
+                                            <td> 
+                                                <div style="height:100%;width:100%">
+                                                    {{ product.quantity }}
+                                                </div>    
+                                            </td>
+                                            <td> 
+                                                <div style="height:100%;width:100%">
+                                                    {{ product.category }}
+                                                </div> 
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <form action="/product/delete/{{product.id}}" method="post">
+                                                        <input type="submit" id="delete" name="delete" value="Delete">
+                                                    </form>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <form action={{url_for('productDetailsPage', id=product.id, edit_flag=True )}}>
+                                                        <input type="submit" id="edit" name="edit" value="Edit">
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <p class="card-title"><b>Create products</b></p>
+                            <div class="col-sm-12">
+                                <form action="/shop/create-product" method="post">
+                                    <div class="input-group input-group-sm col-sm mb-2">
+                                        <input type="text" class="form-control" id="name" name="name" placeholder="Product Name">
+                                    </div>
+                        
+                                    <div class="input-group input-group-sm col-sm mb-2">
+                                        <input type="number" class="form-control" id="price" name="price" placeholder="Product Price">
+                                    </div>
 
-            <label id="category">Category</label>
-            <input type="text" id="category" name="category">
-
-            <input type="submit" id="create-product" name="create-product" value="Create Product to Shop">
-        </form>
-    </div>
-    <div>
-        <h3>Your shop products</h3>
-        <div class="container">
-            <table class="table table-striped table-responsive table-bordered">
-                <thead class="thread-default">
-                    <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Category</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in shop.products %}
-                    <tr>
-                        <td>
-                            <div style="height:100%;width:100%">
-                                {{ product.name }}
-                            </div> 
-                        </td>
-                        <td> 
-                            <div style="height:100%;width:100%">
-                                {{ product.price }}
-                            </div>  
-                        </td>
-                        <td> 
-                            <div style="height:100%;width:100%">
-                                {{ product.quantity }}
-                            </div>    
-                        </td>
-                        <td> 
-                            <div style="height:100%;width:100%">
-                                {{ product.category }}
-                            </div> 
-                        </td>
-                        <td>
-                            <div>
-                                <form action="/product/delete/{{product.id}}" method="post">
-                                    <input type="submit" id="delete" name="delete" value="Delete">
+                                    <div class="input-group input-group-sm col-sm mb-2">
+                                        <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Product Stock">
+                                    </div>
+                        
+                                    <div class="input-group input-group-sm col-sm mb-2">
+                                        <input type="text" class="form-control" id="category" name="category" placeholder="Product Category">
+                                    </div>
+                                    
+                                    <div>
+                                        <button class="btn btn-sm btn-primary btn-block w-100" type="submit">Create Product</button>
+                                    </div>
                                 </form>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div>
-        <form action="/shop/report" method="POST">
-            <input type="submit">
-        </form>
-    </div>
-    <div>
-        <div>
-            <ul>
-                <li>
-                    <a href={{url_for("index")}}>Back to Home</a>
-                </li>
-            </ul>
+    </section>    
+    <footer class="container py-5">
+        <div class="row">
+            <div class="col-12 col-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="d-block mb-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                    <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                    <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                    <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                    <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                    <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                </svg>
+                <small class="d-block mb-3 text-muted">&copy; 2017-2018</small>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Features</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Cool stuff</a></li>
+                    <li><a class="text-muted" href="#">Random feature</a></li>
+                    <li><a class="text-muted" href="#">Team feature</a></li>
+                    <li><a class="text-muted" href="#">Stuff for developers</a></li>
+                    <li><a class="text-muted" href="#">Another one</a></li>
+                    <li><a class="text-muted" href="#">Last time</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Resource</a></li>
+                    <li><a class="text-muted" href="#">Resource name</a></li>
+                    <li><a class="text-muted" href="#">Another resource</a></li>
+                    <li><a class="text-muted" href="#">Final resource</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Business</a></li>
+                    <li><a class="text-muted" href="#">Education</a></li>
+                    <li><a class="text-muted" href="#">Government</a></li>
+                    <li><a class="text-muted" href="#">Gaming</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>About</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Team</a></li>
+                    <li><a class="text-muted" href="#">Locations</a></li>
+                    <li><a class="text-muted" href="#">Privacy</a></li>
+                    <li><a class="text-muted" href="#">Terms</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
+    </footer>
 </body>
 </html>

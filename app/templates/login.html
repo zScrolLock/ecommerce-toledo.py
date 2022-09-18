@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-    </head>
-    <body>
-        <div>
-            <form action="user-login" method="post">
-                <div>
-                    <label id="username">Username</label>
-                    <input type="text" id="username" name="username">
-                </div>
 
-                <div>
-                    <label id="password">Password</label>
-                    <input type="password" id="password" name="password">
-                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles/bootstrap.css" />
+    <link rel="stylesheet" href="../static/styles/login.css" />
+    <title>Login</title>
+</head>
 
-                <div>
-                    <input type="submit" id="login" name="login" value="Login">
-                </div>
-            </form>
+<body>
+    <form action="user-login" method="post" class="form-signin">
+        <div class="form-label-group">
+            <input type="text" id="username" name="username" class="form-control" placeholder="Type your username" required autofocus>
+            <label for="username">Username</label>
         </div>
-    </body>
+
+        <div class="form-label-group">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+            <label for="password">Password</label>
+        </div>
+        <div>
+            <button class="btn btn-lg btn-primary btn-block w-100" type="submit">Sign in</button>
+        </div>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; 2022</p>
+    </form>
+</body>
+
 </html>

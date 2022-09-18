@@ -4,35 +4,125 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/styles/bootstrap.css" />
+    <link rel="stylesheet" href="../../../static/styles/bootstrap.css" />
+    <link rel="stylesheet" href="../../../static/styles/extras.css" />
     <title>Products</title>
 </head>
 <body>
-    {% if product %}
-    <div>
-        <div>{{ product.name }}</div>
-        <div>{{ product.price }}</div>
-        <div>{{ product.category }}</div>
-    </div>
-    <div>
-        <form action="/product/buy/{{product.id}}" method="post">
-            <input type="submit" id="buy" name="buy" value="Buy Shop">
-        </form>
-    </div>
-    <div>
-        <form action="/product/favorite/{{product.id}}" method="post">
-            <input type="submit" id="favorite" name="favorite" value="Favorite Product">
-        </form>
-    </div>
-    {% endif %}
-    <div>
-        <div>
-            <ul>
-                <li>
-                    <a href={{url_for("index")}}>Back to Home</a>
-                </li>
-            </ul>
+    <nav class="site-header sticky-top py-1">
+        <div class="container d-flex flex-column flex-md-row justify-content-between">
+            <a class="py-2 d-none d-md-inline-block" style="text-decoration: none;" href={{url_for("index")}}>Home
+                Page</a>
+            <form action={{url_for('logoutUser')}} method="post">
+                <input class="py-2 d-none d-md-inline-block" type="submit" id="logout" name="logout" value="Logout">
+            </form>
         </div>
+    </nav>
+
+    <div class="container">
+        {% if not edit_flag or edit_flag == 'False' %}
+            {% if product %}
+            <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
+                <div class="col-md-5 p-lg-5 mx-auto my-5">
+                    <img class="card-img-top" src="../../../static/img/unknown.png" alt="Card image cap">
+                    <h4 class="display-4 font-weight-bold">{{ product.name }}</h1>
+                    <p class="lead font-weight-normal"><b>Price:</b> {{ product.price }} $ - {{ product.category }}</p>
+                    <hr />
+
+                    <form action="/product/buy/{{product.id}}" method="post">
+                        <input class="btn btn-lg btn-primary btn-block w-100 mb-2" type="submit" id="buy" name="buy" value="Buy Shop">
+                    </form>
+
+                    <form action="/product/favorite/{{product.id}}" method="post">
+                        <input class="btn btn-lg btn-primary btn-block w-100 mb-2" type="submit" id="favorite" name="favorite" value="Favorite Product">
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
+                <div class="col-md-5 p-lg-5 mx-auto my-5">
+                    <img class="card-img-top" src="../../../static/img/unknown.png" alt="Card image cap">
+                    <form action="/product/edit/{{product.id}}" method="post">
+                        <div class="input-group mb-3 mt-3">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Type Product Name" aria-label="name" aria-describedby="basic-addon1" value={{product.name}} required autofocus>
+                        </div>
+            
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" id="price" name="price" placeholder="Type Product Price" aria-label="price" aria-describedby="basic-addon1" value={{product.price}} required>
+                        </div>
+            
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Type Product Quantity" aria-label="quantity" aria-describedby="basic-addon1" value={{product.quantity}} required>
+                        </div>
+                
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="category" name="category" placeholder="Type Product Category" aria-label="category" aria-describedby="basic-addon1" value={{product.category}} required>
+                        </div>
+                        <div class="mb-5">
+                            <button class="btn btn-lg btn-primary btn-block w-100" type="submit">Edit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
     </div>
+
+    <footer class="container py-5 mt-5">
+        <div class="row">
+            <div class="col-12 col-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="d-block mb-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                    <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                    <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                    <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                    <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                    <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                </svg>
+                <small class="d-block mb-3 text-muted">&copy; 2017-2018</small>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Features</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Cool stuff</a></li>
+                    <li><a class="text-muted" href="#">Random feature</a></li>
+                    <li><a class="text-muted" href="#">Team feature</a></li>
+                    <li><a class="text-muted" href="#">Stuff for developers</a></li>
+                    <li><a class="text-muted" href="#">Another one</a></li>
+                    <li><a class="text-muted" href="#">Last time</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Resource</a></li>
+                    <li><a class="text-muted" href="#">Resource name</a></li>
+                    <li><a class="text-muted" href="#">Another resource</a></li>
+                    <li><a class="text-muted" href="#">Final resource</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Business</a></li>
+                    <li><a class="text-muted" href="#">Education</a></li>
+                    <li><a class="text-muted" href="#">Government</a></li>
+                    <li><a class="text-muted" href="#">Gaming</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>About</h5>
+                <ul class="list-unstyled text-small">
+                    <li><a class="text-muted" href="#">Team</a></li>
+                    <li><a class="text-muted" href="#">Locations</a></li>
+                    <li><a class="text-muted" href="#">Privacy</a></li>
+                    <li><a class="text-muted" href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

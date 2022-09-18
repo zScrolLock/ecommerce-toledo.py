@@ -4,43 +4,102 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../static/styles/bootstrap.css" />
+        <link rel="stylesheet" href="../static/styles/extras.css" />
         <title>Register</title>
     </head>
     <body>
-        <div>
-            <h4>Register</h4>
+        <nav class="site-header sticky-top py-1 mb-3">
+            <div class="container d-flex flex-column flex-md-row justify-content-between">
+                <a class="py-2 d-none d-md-inline-block" style="text-decoration: none;" href={{url_for("index")}}>Home
+                    Page</a>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <h3>Register in E-commerce Toledo</h3>
             <form action="register-user" method="post">
-                <div>
-                    <label id="name">Name</label>
-                    <input type="text" id="name" name="name">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Type your Full Name" aria-label="name" aria-describedby="basic-addon1" required autofocus>
                 </div>
-
-                <div>
-                    <label id="email">E-mail</label>
-                    <input type="email" id="email" name="email">
+    
+                <div class="input-group mb-3">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Type your E-mail" aria-label="email" aria-describedby="basic-addon1" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text" id="basic-addon2">@email.com</span>
+                    </div>
                 </div>
-
-                <div>
-                    <label id="username">Username</label>
-                    <input type="text" id="username" name="username">
+    
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">@</span>
+                    </div>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Type your Username" aria-label="username" aria-describedby="basic-addon1" required>
                 </div>
-                
-                <div>
-                    <label id="password">Password</label>
-                    <input type="password" id="password" name="password">
+        
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Type your password" aria-label="password" aria-describedby="basic-addon1" required>
                 </div>
-                
-                <div>
-                    <input type="submit" id="register" name="register" value="Register">
+                <div class="mb-5">
+                    <button class="btn btn-lg btn-primary btn-block w-100" type="submit">Register</button>
                 </div>
             </form>
         </div>
-        <div>
-            <ul>
-                <li>
-                    <a href={{url_for("index")}}>Back to Home</a>
-                </li>
-            </ul>
-        </div>
+
+        <footer class="container py-5" style="margin-top: 10%;">
+            <div class="row">
+              <div class="col-12 col-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="d-block mb-2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                  <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                  <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                  <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                  <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                  <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                </svg>
+                <small class="d-block mb-3 text-muted">&copy; 2017-2018</small>
+              </div>
+              <div class="col-6 col-md">
+                <h5>Features</h5>
+                <ul class="list-unstyled text-small">
+                  <li><a class="text-muted" href="#">Cool stuff</a></li>
+                  <li><a class="text-muted" href="#">Random feature</a></li>
+                  <li><a class="text-muted" href="#">Team feature</a></li>
+                  <li><a class="text-muted" href="#">Stuff for developers</a></li>
+                  <li><a class="text-muted" href="#">Another one</a></li>
+                  <li><a class="text-muted" href="#">Last time</a></li>
+                </ul>
+              </div>
+              <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                  <li><a class="text-muted" href="#">Resource</a></li>
+                  <li><a class="text-muted" href="#">Resource name</a></li>
+                  <li><a class="text-muted" href="#">Another resource</a></li>
+                  <li><a class="text-muted" href="#">Final resource</a></li>
+                </ul>
+              </div>
+              <div class="col-6 col-md">
+                <h5>Resources</h5>
+                <ul class="list-unstyled text-small">
+                  <li><a class="text-muted" href="#">Business</a></li>
+                  <li><a class="text-muted" href="#">Education</a></li>
+                  <li><a class="text-muted" href="#">Government</a></li>
+                  <li><a class="text-muted" href="#">Gaming</a></li>
+                </ul>
+              </div>
+              <div class="col-6 col-md">
+                <h5>About</h5>
+                <ul class="list-unstyled text-small">
+                  <li><a class="text-muted" href="#">Team</a></li>
+                  <li><a class="text-muted" href="#">Locations</a></li>
+                  <li><a class="text-muted" href="#">Privacy</a></li>
+                  <li><a class="text-muted" href="#">Terms</a></li>
+                </ul>
+              </div>
+            </div>
+          </footer>
     </body>
 </html>

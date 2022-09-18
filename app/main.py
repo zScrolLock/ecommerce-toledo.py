@@ -1,3 +1,4 @@
+from crypt import methods
 from operator import or_
 from flask import Flask, make_response, abort, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -51,13 +52,19 @@ class Users(db.Model):
 class Shops(db.Model): 
     id = db.Column('id', db.Integer, primary_key = True)
     name = db.Column('name', db.String(256), nullable = False)
+    address = db.Column('address', db.String(256), nullable = False)
+    shopcode = db.Column('shop_code', db.String(256), nullable = False)
+    cellphone = db.Column('cellphone', db.String(256), nullable = False)
     products = db.relationship('Adverts', secondary = shops_adverts, lazy = 'subquery', backref = db.backref('shops', lazy = True))
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('users.id'), nullable = False)
 
     # Constructor
-    def __init__(this, name, user_id):
+    def __init__(this, name, user_id, address, shopcode, cellphone):
         this.name = name
         this.user_id = user_id
+        this.address = address
+        this.shopcode = shopcode
+        this.cellphone = cellphone
 
     # ToString Method
     def as_dict(self):
@@ -190,7 +197,7 @@ def registerShops():
         return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
 
     if not shopValidate:
-        newShop = Shops(request.form.get('name'), user.id)
+        newShop = Shops(request.form.get('name'), user.id, request.form.get('address'), request.form.get('shopcode'), request.form.get('cellphone'))
         db.session.add(newShop)
         db.session.commit()
 
@@ -346,9 +353,9 @@ def createProduct():
 
     return redirect(url_for('index'))
 
-@app.route("/product/detail/<id>")
-def productDetailsPage(id):
-    return render_template('productPage.html', product = Adverts.query.filter(Adverts.id == id).one_or_none())
+@app.route("/product/detail/<id>/<edit_flag>")
+def productDetailsPage(id, edit_flag):
+    return render_template('productPage.html', product = Adverts.query.filter(Adverts.id == id).one_or_none(), edit_flag = edit_flag)
 
 @app.route("/product/favorite/<id>", methods=['POST'])
 def favoriteProduct(id):
@@ -420,9 +427,36 @@ def deleteProduct(id):
         return jokerAction('Not Found', {'title': 'Product not found', 'message': 'product not found in database'})
 
     db.session.delete(product)
+    Sales.query.filter(Sales.product_id == product.id).delete()
     db.session.commit()
 
-    return redirect(url_for("shopPage"))    
+    return redirect(url_for("shopPage"))   
+
+@app.route("/product/edit/<product_id>", methods=['POST'])
+def editProduct(product_id):
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
+
+    if not user:
+        return jokerAction('Not Found', {'title': 'User not found', 'message': 'user not found in database'})
+
+    product = Adverts.query.filter(Adverts.id == product_id).one_or_none()
+
+    if not product:
+        return jokerAction('Not Found', {'title': 'Product not found', 'message': 'product not found in database'})
+
+    product.name = request.form.get('name') or product.name
+    product.price = request.form.get('price') or product.name
+    product.category = request.form.get('category') or product.category
+    product.quantity = request.form.get('quantity') or product.quantity
+    
+    db.session.add(product)
+    db.session.commit()
+
+    return redirect(url_for('index'))
 
 @app.route("/<type>/report", methods=['POST'])
 def reportsSalesPage(type):
@@ -433,7 +467,12 @@ def reportsSalesPage(type):
     user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
 
     if type == 'shop':
-        reports = Sales.query.filter(Sales.owner_id == user.id).all()
+        shop = Shops.query.filter(Shops.user_id == user.id).one_or_none()
+        
+        if not shop:
+            return jokerAction('Not Found', {'title': 'Report not found', 'message': 'report type not found in database'})
+
+        reports = Sales.query.filter(Sales.owner_id == shop.id).all()
 
         for x in reports:
             x.product = db.session.query(Adverts.name).filter(Adverts.id == x.product_id).one_or_none()['name']
