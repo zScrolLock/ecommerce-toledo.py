@@ -140,7 +140,10 @@ def index():
 
     if request.cookies.get('token'):
         user = Users.query.get(jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])['id'])
-        return render_template('home.html', role = user.role, username = user.username, token = request.cookies.get('token'), products=adverts_arr)
+        if not user:
+            return render_template('home.html', role = None, username = None, token = None, products=adverts_arr)
+        else:
+            return render_template('home.html', role = user.role, username = user.username, token = request.cookies.get('token'), products=adverts_arr)
     else:
         return render_template('home.html', role = None, username = None, token = None, products=adverts_arr)
     
