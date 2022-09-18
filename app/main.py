@@ -1,12 +1,14 @@
 from base64 import decode
 from crypt import methods
 from operator import or_
+from venv import create
 from flask import Flask, make_response, abort, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from sqlalchemy import select
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime
 import jwt
 import os
 import bcrypt
@@ -53,7 +55,6 @@ class Users(db.Model):
 class Shops(db.Model): 
     id = db.Column('id', db.Integer, primary_key = True)
     name = db.Column('name', db.String(256), nullable = False)
-    report = db.relationship('Reports', backref = 'reports', lazy = True)
     products = db.relationship('Adverts', secondary = shops_adverts, lazy = 'subquery', backref = db.backref('shops', lazy = True))
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('users.id'), nullable = False)
 
@@ -86,26 +87,12 @@ class Adverts(db.Model):
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-class Reports(db.Model):
-    id = db.Column('id', db.Integer, primary_key = True)
-    type = db.Column('type', db.String(256))
-    shops_id = db.Column('shops_id', db.Integer, db.ForeignKey('shops.id'))
-
-    # Constructor
-    def __init__(this, name, type, shops_id):
-        this.name = name
-        this.type = type
-        this.shops_id = shops_id
-
-    # ToString Method
-    def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
 class Sales(db.Model):
     id = db.Column('id', db.Integer, primary_key = True)
     product_id = db.Column('product_id', db.Integer, nullable = False)
     owner_id = db.Column('shop_id', db.Integer, nullable = False)
     buyer_id = db.Column('buyer_id', db.Integer, nullable = False)
+    created_at = db.Column('created_at', db.DateTime, nullable = False, default = datetime.now())
 
     # Constructor
     def __init__(this, product_id, owner_id, buyer_id):
@@ -363,14 +350,6 @@ def createProduct():
 
     return redirect(url_for('index'))
 
-
-@app.route("/shop/report")
-def reportsSalesShopPage():
-    if not checkUser(request.cookies.get('token')):
-        return abort(401)
-
-    return render_template('reportSales.html')
-
 @app.route("/product/detail/<id>")
 def productDetailsPage(id):
     return render_template('productPage.html', product = Adverts.query.filter(Adverts.id == id).one_or_none())
@@ -448,6 +427,39 @@ def deleteProduct(id):
     db.session.commit()
 
     return redirect(url_for("shopPage"))    
+
+@app.route("/<type>/report", methods=['POST'])
+def reportsSalesPage(type):
+    if not checkUser(request.cookies.get('token')):
+        return abort(401)
+
+    decodedInfos = jwt.decode(request.cookies.get('token'), app.config['SECRET_JWT_KEY'])
+    user = Users.query.filter(Users.id == decodedInfos['id']).one_or_none()
+
+    if type == 'shop':
+        reports = Sales.query.filter(Sales.owner_id == user.id).all()
+
+        for x in reports:
+            x.product = db.session.query(Adverts.name).filter(Adverts.id == x.product_id).one_or_none()['name']
+            x.product_price = db.session.query(Adverts.price).filter(Adverts.id == x.product_id).one_or_none()['price']
+            x.owner = db.session.query(Shops.name).filter(Shops.id == x.owner_id).one_or_none()['name']
+            x.buyer = db.session.query(Users.name).filter(Users.id == x.buyer_id).one_or_none()['name']
+            x.created_at = x.created_at.strftime('%d/%m/%Y')
+
+        return render_template('reportSales.html', type=type, reports=reports)
+    elif type == 'user':
+        reports = Sales.query.filter(Sales.buyer_id == user.id).all()
+
+        for x in reports:
+            x.product = db.session.query(Adverts.name).filter(Adverts.id == x.product_id).one_or_none()['name']
+            x.product_price = db.session.query(Adverts.price).filter(Adverts.id == x.product_id).one_or_none()['price']
+            x.owner = db.session.query(Shops.name).filter(Shops.id == x.owner_id).one_or_none()['name']
+            x.buyer = db.session.query(Users.name).filter(Users.id == x.buyer_id).one_or_none()['name']
+            x.created_at = x.created_at.strftime('%d/%m/%Y')
+
+        return render_template('reportSales.html', type=type, reports=reports)
+    else:
+        return jokerAction('Not Found', {'title': 'Report not found', 'message': 'report type not found in database'})
 
 if __name__ == 'main':
     db.create_all()

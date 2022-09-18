@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles/bootstrap.css" />
+    <title>Report {{ type }}</title>
+</head>
+<body>
+    <div class="container">
+        <h3>Report {{type}} - Review</h3>
+        <table class="table table-striped table-responsive table-bordered">
+            <thead class="thread-default">
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Owner [SHOP]</th>
+                    <th>Buyer [CLIENT]</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in reports %}
+                <tr>
+                    <td> {{ sale.id }} </td>
+                    <td> {{ sale.product }} </td>
+                    <td> {{ sale.product_price }} </td>
+                    <td> {{ sale.owner }} </td>
+                    <td> {{ sale.buyer }} </td>
+                    <td> {{ sale.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div>
+            <ul>
+                <li>
+                    <a href={{url_for("index")}}>Back to Home</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
